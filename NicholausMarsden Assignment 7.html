@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>
+Nicholaus Marsden Assignment 7
+</title>
+</head>
+<h1> Nicholaus Marsden Assignment 7 </h1>
+<body bgcolor="#00FFFF">
+
+
+<form name = "car" method="get" onsubmit="return createCar();">
+Engine Description (text):</br><input type="text" id="enginedesc"  value="Yes"> 
+   <br>
+Miles Per Gallon (integer):<br> <input type="text" id="mpg" value="50">
+  <br>
+Max Speed (integer):<br><input type="text" id = "speed"  value="50">
+  <br>
+Car Description (text):<br> <input type="text" id = "car"  value="No">
+  <br>
+Max Fuel Capacity (integer):<br> <input type="text" id = "max"  value="50">
+  <br>
+  <br>
+<input type="submit" value="Create a Car" >
+</form>
+
+<p id = "1Result"> 
+
+<form id = "form2" style="visibility:hidden" onsubmit="return drive();">
+Miles to Drive (integer):<br><input type="text" id = "distance"  >
+<br>
+  
+X Ratio (integer):<br>  <input type="text" id = "x"  >
+<br>
+  
+Y Ratio(integer):<br> <input type="text" id = "y"  >
+<br>
+  <br>
+
+<input type="submit" value="Drive" >
+
+</form>
+<p id = "2Result">
+
+
+<br>
+
+<script type="text/javascript">
+
+function GasTank(sentcapacity)
+{
+ 	var cap= 0;
+ 	var lev = 0;
+ 	
+ 	if (sentcapacity >= 0)
+ 		cap = sentcapacity;
+ 	
+	
+ 	 	this.getCapacity = function ()
+ 	{
+ 	return cap;
+ 	}
+ 	
+	this.getLevel = function ()
+ 	{
+ 		return lev;
+ 	}
+ 	
+ 	this.setLevel = function (sentlevel)
+ 	{
+ 		if (sentlevel >0)
+		lev = sentlevel;
+		else
+ 			lev = 0;
+ 	}
+}
+
+function Engine(description, initmpg, initmaxspd)
+{
+ 	var  enginedesc= "Generic engine";
+ 	var mpg = 0;
+ 	var maxspeed = 0;
+ 	
+ 	if (description.length > 0)
+ enginedesc = description;
+ 	
+ 	if ( initmpg >= 0)
+
+ 	 mpg = initmpg;
+ 	
+ 	if (initmaxspd >= 0)
+  maxspeed = initmaxspd;
+ 	
+ 	this.getMPG = function()
+ 	{
+ 	return mpg;
+ 	}
+ 	
+ 	this.getMaxSpeed = function()
+ 	{
+ 	return maxspeed;
+ 	}
+ 	
+ 	this.getDescription = function()
+ 	{
+ 	return enginedesc + "(MPG: " + mpg + ", Max Speed:" + maxspeed +")";
+ 	}
+ 	
+}
+
+function Car(desc, maxfuel, initengine)
+{
+var Cardesc = desc;
+var xcoordinate = 0;
+var ycoordinate = 0;
+var gas = new GasTank(maxfuel);
+var engine = initengine;
+if (desc.length == 0)
+Cardesc = "Generic Car";
+
+
+if (initengine == null)
+engine = new Engine("Generic Engine", 0, 0)
+
+
+this.getDescription = function()
+{
+//return "(" + desc + "(engine:" + engine.getDescription() + ")";
+  return Cardesc+ "engine:" + engine.getDescription() + ", fuel: " +gas.getLevel().toFixed(1)+ "/"+ gas.getCapacity()+ "location:( "+ xcoordinate.toFixed(1)+ "," + ycoordinate.toFixed(1)+ ")";
+}
+
+this.getX = function ()
+{
+return xcoordinate;
+}
+
+this.getY = function()
+{
+return ycoordinate;
+}
+
+this.getFuelLevel = function()
+{
+return gas.getLevel();
+}
+
+this.getMPG = function()
+{
+return engine.getMPG();
+}
+
+this.fillup = function()
+{
+gas.setLevel(gas.getCapacity());	
+}
+
+this.getMaxSpeed = function()
+{
+return engine.getMaxSpeed();
+}
+
+
+this.drive = function(distance, xRatio, yRatio){	
+		var angle =0;
+		if (xRatio != 0)
+		 angle = Math.atan(yRatio/xRatio);
+		else 
+		angle = Math.PI/2;
+		
+		var xsub;
+	xsub = distance*Math.abs(Math.cos(angle));
+		if (xRatio< 0)
+		xsub =xsub*-1;
+		xcoordinate=xcoordinate+ xsub;
+		
+		var ysub;
+		ysub = distance*Math.abs(Math.sin(angle));
+		if (yRatio< 0)
+		ysub =ysub*-1;
+		ycoordinate= ycoordinate+ysub;
+		
+		// This is the distance portion and also the fuel portion
+		var totalmilesleft;
+ if (this.getFuelLevel()>= distance/this.getMPG()){
+ gas.setLevel(this.getFuelLevel()- (distance/this.getMPG()));
+ return distance;
+ }
+ else if (this.getFuelLevel() < distance/this.getMPG()){
+ 				alert("Ran out of gas after driving " + this.getFuelLevel()*this.getMPG() + " miles");
+				if (xRatio > 0){
+				xcoordinate= xcoordinate-distance*Math.cos(angle);
+				xcoordinate=xcoordinate- this.getFuelLevel()*this.getMPG()*Math.abs(Math.cos(angle));
+				}
+				else{
+				xcoordinate= xcoordinate- distance*Math.cos(angle);
+				xcoordinate=xcoordinate + -1*this.getFuelLevel()*this.getMPG()*Math.abs(Math.cos(angle));
+				
+				}
+				if (yRatio > 0){
+				ycoordinate= ycoordinate -distance*Math.cos(angle);
+				ycoordinate= ycoordinate+ this.getFuelLevel()*this.getMPG()*Math.abs(Math.sin(angle));
+				}
+				else{
+				ycoordinate=ycoordinate- distance*Math.cos(angle);
+				ycoordinate=ycoordinate + -1*this.getFuelLevel()*this.getMPG()*Math.abs(Math.sin(angle));
+				}
+				totalmilesleft= this.getFuelLevel()*this.getMPG();
+				return totalmilesleft.toFixed(2);
+				}
+				
+
+				}
+ 
+		
+		}
+function createCar() {
+    var engineDescription = document.getElementById("enginedesc").value;
+    var milesPerGallon = document.getElementById("mpg").value;
+    var maxSpeed = document.getElementById("speed").value;
+    var carDescription = document.getElementById("car").value;
+    var maxFuel = document.getElementById("max").value;
+    
+	 eng = new Engine(engineDescription, milesPerGallon, maxSpeed);
+     car = new Car(carDescription, maxFuel, eng);
+    
+    document.getElementById("1Result").innerHTML = car.getDescription();
+    
+    document.getElementById("form2").style.visibility = "visible";
+    car.fillup();
+    
+     return false;
+    
+}
+    
+    function drive()
+    {
+    var distance = document.getElementById("distance").value;
+    var xratio = document.getElementById("x").value;
+    var yratio = document.getElementById("y").value;
+    car.drive(distance, xratio, yratio);
+    document.getElementById("2Result").innerHTML = (car.getDescription() + "  X Ratio:  " + xratio + "  Y Ratio:    " + yratio + "   Fuel Level:  " + car.getFuelLevel().toFixed(1));
+    
+     return false;
+}
+
+</script>
+
+
+
+</body>
+</html>
+
